@@ -9,3 +9,4 @@ credentials.json
 ruff.toml
 osTicketDirBackupLog.txt
 token.json
+osTicket directory backup*
