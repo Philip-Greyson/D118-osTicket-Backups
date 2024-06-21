@@ -19,6 +19,7 @@ SCOPES = ['https://www.googleapis.com/auth/admin.directory.user', 'https://www.g
 MAX_FILES_IN_FOLDER = 3  # define the maximum number of files in the google drive folder. the oldest files will be deleted to reduce down to this number
 DIRECTORY_TO_BACKUP = '/usr/games/'  # define the directory that will be backed up
 FILENAME_PREFIX = 'osTicket directory backup-'
+GOOGLE_DRIVE_FOLDER_NAME = 'Test Script'
 
 if __name__ == '__main__':
     with open('osTicketDirBackupLog.txt', 'w') as log:
@@ -50,7 +51,8 @@ if __name__ == '__main__':
 
         nextPageFolderToken = ''
         while nextPageFolderToken is not None:
-            folder = drive.files().list(corpora='user',q="'me' in owners and mimeType='application/vnd.google-apps.folder' and name='Test Script' and trashed=false",pageToken=nextPageFolderToken).execute()
+            folderQuery = f"'me' in owners and mimeType='application/vnd.google-apps.folder' and name='{GOOGLE_DRIVE_FOLDER_NAME}' and trashed=false"
+            folder = drive.files().list(corpora='user',q=folderQuery,pageToken=nextPageFolderToken).execute()
             # print(files)
             nextPageFolderToken = folder.get('nextPageToken')  # retrieve the next page token from the response
             folder = folder.get('files',[])  # retrieve just the folder from the files part of the response
@@ -66,7 +68,7 @@ if __name__ == '__main__':
                 print(f'INFO: Backup file "{filename}" was uploaded to Google Drive folder with ID {folderID}, resulting file ID is {uploadFile.get("id")}')
                 print(f'INFO: Backup file "{filename}" was uploaded to Google Drive folder with ID {folderID}, resulting file ID is {uploadFile.get("id")}', file=log)
 
-                t.sleep(5)  # sleep
+                # t.sleep(5)  # sleep to make sure we can see the new file, not sure if this is necessary
 
                 try:
                     nextPageFileToken = ''
@@ -85,7 +87,7 @@ if __name__ == '__main__':
                                 driveFileStarred = files[i].get('starred')  # get the starred status
                                 driveFileID = files[i].get('id')
                                 drivefilename = files[i].get('name')
-                                print(f'DBUG: Found file named {drivefilename} with ID {driveFileID}, starred {driveFileStarred}')
+                                # print(f'DBUG: Found file named {drivefilename} with ID {driveFileID}, starred {driveFileStarred}')
                                 if filesToDelete > 0:  # only look at the files while we still need to delete files
                                     if driveFileStarred == False:
                                         print(f'INFO: File {drivefilename} with ID {driveFileID} is not starred and will be deleted')
@@ -93,6 +95,11 @@ if __name__ == '__main__':
                                         try:
                                             drive.files().delete(fileId=driveFileID).execute()
                                             filesToDelete-=1  # decrement the number of files still needing to be deleted
+                                        except HttpError as er:   # catch Google API http errors, get the specific message and reason from them for better logging
+                                            status = er.status_code
+                                            details = er.error_details[0]  # error_details returns a list with a dict inside of it, just strip it to the first dict
+                                            print(f'ERROR {status} from Google API while deleting Google Drive file {drivefilename} with ID {driveFileID}: {details["message"]}. Reason: {details["reason"]}')
+                                            print(f'ERROR {status} from Google API while deleting Google Drive file {drivefilename} with ID {driveFileID}: {details["message"]}. Reason: {details["reason"]}', file=log)
                                         except Exception as er:
                                             print(f'ERROR while deleting Google Drive file {drivefilename}, {driveFileID}: {er}')
                                             print(f'ERROR while deleting Google Drive file {drivefilename}, {driveFileID}: {er}', file=log)
@@ -101,7 +108,19 @@ if __name__ == '__main__':
                                 print(f'ERROR: Could not reduce down to maximum file count, still need to delete {filesToDelete} more', file=log)
 
                     # delete the created tar file from the local machine so we dont end up out of space just from local backups
-                    os.remove(filename)
+                    try:
+                        os.remove(filename)
+                        print('DBUG: Local tar file was successfully deleted after upload')
+                        print('DBUG: Local tar file was successfully deleted after upload', file=log)
+                    except Exception as er:
+                        print(f'ERROR while deleting local tar file after upload: {er}')
+                        print(f'ERROR while deleting local tar file after upload: {er}', file=log)
+
+                except HttpError as er:   # catch Google API http errors, get the specific message and reason from them for better logging
+                    status = er.status_code
+                    details = er.error_details[0]  # error_details returns a list with a dict inside of it, just strip it to the first dict
+                    print(f'ERROR {status} from Google API while fetching files in the Drive folder {GOOGLE_DRIVE_FOLDER_NAME}: {details["message"]}. Reason: {details["reason"]}')
+                    print(f'ERROR {status} from Google API while fetching files in the Drive folder {GOOGLE_DRIVE_FOLDER_NAME}: {details["message"]}. Reason: {details["reason"]}', file=log)
                 except Exception as er:
                     print(f'ERROR: {er}')
                     print(f'ERROR: {er}', file=log)
