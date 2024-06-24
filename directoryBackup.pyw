@@ -23,6 +23,12 @@ GOOGLE_DRIVE_FOLDER_NAME = 'osTicket web folder backups'
 
 if __name__ == '__main__':
     with open('osTicketDirBackupLog.txt', 'w') as log:
+        startTime = datetime.now()
+        startTime = startTime.strftime('%H:%M:%S')
+        print(f'INFO: Execution started at {startTime}')
+        print(f'INFO: Execution started at {startTime}', file=log)
+
+        # handle creating the Google API connection
         creds = None
         # The file token.json stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
@@ -46,9 +52,13 @@ if __name__ == '__main__':
         timestamp = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')  # get the current date and time
         filename = FILENAME_PREFIX + timestamp + '.tar.gz'  # create a filename based on our prefix and timestamp
 
+        print(f'INFO: Creating tar archive of folder {DIRECTORY_TO_BACKUP}, with filename "{filename}" this may take a while')
+        print(f'INFO: Creating tar archive of folder {DIRECTORY_TO_BACKUP}, with filename "{filename}" this may take a while', file=log)
         with tarfile.open(filename, "w:gz") as tar:  # create a tar with our filename
             tar.add(DIRECTORY_TO_BACKUP, arcname=os.path.basename(DIRECTORY_TO_BACKUP))  # add the files from the directory to the tar
 
+        print(f'INFO: Successfully created tar file, attempting to upload to Google drive folder named "{GOOGLE_DRIVE_FOLDER_NAME}"')
+        print(f'INFO: Successfully created tar file, attempting to upload to Google drive folder named "{GOOGLE_DRIVE_FOLDER_NAME}"',file=log)
         nextPageFolderToken = ''
         while nextPageFolderToken is not None:
             folderQuery = f"'me' in owners and mimeType='application/vnd.google-apps.folder' and name='{GOOGLE_DRIVE_FOLDER_NAME}' and trashed=false"
@@ -133,3 +143,7 @@ if __name__ == '__main__':
                 except Exception as er:
                     print(f'ERROR while deleting local tar file after upload: {er}')
                     print(f'ERROR while deleting local tar file after upload: {er}', file=log)
+
+            else:  # if there were no folders found matching the query
+                print(f'ERROR: No folder found for "{GOOGLE_DRIVE_FOLDER_NAME}, make sure the folder exists and is owned by the user')
+                print(f'ERROR: No folder found for "{GOOGLE_DRIVE_FOLDER_NAME}, make sure the folder exists and is owned by the user', file=log)
