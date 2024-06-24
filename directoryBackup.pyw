@@ -52,7 +52,8 @@ if __name__ == '__main__':
         drive = build('drive', 'v3', credentials=creds)
 
         timestamp = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')  # get the current date and time
-        filename = SCRIPT_DIRECTORY + FILENAME_PREFIX + timestamp + '.tar.gz'  # create a filename based on our prefix and timestamp
+        filename = FILENAME_PREFIX + timestamp + '.tar.gz'  # create a filename based on our prefix and timestamp
+        filenamePath = SCRIPT_DIRECTORY + filename
 
         print(f'INFO: Creating tar archive of folder {DIRECTORY_TO_BACKUP}, with filename "{filename}" this may take a while')
         print(f'INFO: Creating tar archive of folder {DIRECTORY_TO_BACKUP}, with filename "{filename}" this may take a while', file=log)
@@ -76,7 +77,7 @@ if __name__ == '__main__':
                     parentsArray = []
                     parentsArray.append(folderID)
                     file_metadata = {'name': filename, 'parents': parentsArray}  # define metadata about the file, like its name and the parent folder
-                    media = media = MediaFileUpload(filename=filename, mimetype='application/octet-stream', resumable=True)  # create the media body for the file, which is the file, file type, and wether it is resumable
+                    media = MediaFileUpload(filename=filenamePath, mimetype='application/octet-stream', resumable=True)  # create the media body for the file, which is the file, file type, and wether it is resumable
                     uploadFile = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()  # do the creation of the file using the bodies defined above
                     print(f'INFO: Backup file "{filename}" was uploaded to Google Drive folder with ID {folderID}, resulting file ID is {uploadFile.get("id")}')
                     print(f'INFO: Backup file "{filename}" was uploaded to Google Drive folder with ID {folderID}, resulting file ID is {uploadFile.get("id")}', file=log)
