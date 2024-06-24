@@ -52,7 +52,7 @@ if __name__ == '__main__':
         drive = build('drive', 'v3', credentials=creds)
 
         timestamp = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')  # get the current date and time
-        filename = FILENAME_PREFIX + timestamp + '.tar.gz'  # create a filename based on our prefix and timestamp
+        filename = SCRIPT_DIRECTORY + FILENAME_PREFIX + timestamp + '.tar.gz'  # create a filename based on our prefix and timestamp
 
         print(f'INFO: Creating tar archive of folder {DIRECTORY_TO_BACKUP}, with filename "{filename}" this may take a while')
         print(f'INFO: Creating tar archive of folder {DIRECTORY_TO_BACKUP}, with filename "{filename}" this may take a while', file=log)
