@@ -125,6 +125,9 @@ if __name__ == '__main__':
                             if filesToDelete > 0:  # if we got through every file and we werent able to delete enough, give an error
                                 print(f'ERROR: Could not reduce down to maximum file count, still need to delete {filesToDelete} more')
                                 print(f'ERROR: Could not reduce down to maximum file count, still need to delete {filesToDelete} more', file=log)
+                        else:
+                            print(f'DBUG: Current # of files in the folder is {len(files)} which does not exceed the max of {MAX_FILES_IN_FOLDER}, no files deleted')
+                            print(f'DBUG: Current # of files in the folder is {len(files)} which does not exceed the max of {MAX_FILES_IN_FOLDER}, no files deleted', file=log)
 
                 except HttpError as er:   # catch Google API http errors, get the specific message and reason from them for better logging
                     status = er.status_code
@@ -147,3 +150,7 @@ if __name__ == '__main__':
             else:  # if there were no folders found matching the query
                 print(f'ERROR: No folder found for "{GOOGLE_DRIVE_FOLDER_NAME}, make sure the folder exists and is owned by the user')
                 print(f'ERROR: No folder found for "{GOOGLE_DRIVE_FOLDER_NAME}, make sure the folder exists and is owned by the user', file=log)
+        endTime = datetime.now()
+        endTime = endTime.strftime('%H:%M:%S')
+        print(f'INFO: Execution ended at {endTime}')
+        print(f'INFO: Execution ended at {endTime}', file=log)
