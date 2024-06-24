@@ -20,9 +20,10 @@ MAX_FILES_IN_FOLDER = 14  # define the maximum number of files in the google dri
 DIRECTORY_TO_BACKUP = '/var/www/osTicket/'  # define the directory that will be backed up
 FILENAME_PREFIX = 'osTicket directory backup-'
 GOOGLE_DRIVE_FOLDER_NAME = 'osTicket web folder backups'
+SCRIPT_DIRECTORY = '/var/www/osTicket/scripts/D118-osTicket-Backups/'
 
 if __name__ == '__main__':
-    with open('osTicketDirBackupLog.txt', 'w') as log:
+    with open(SCRIPT_DIRECTORY + 'osTicketDirBackupLog.txt', 'w') as log:
         startTime = datetime.now()
         startTime = startTime.strftime('%H:%M:%S')
         print(f'INFO: Execution started at {startTime}')
@@ -33,18 +34,19 @@ if __name__ == '__main__':
         # The file token.json stores the user's access and refresh tokens, and is
         # created automatically when the authorization flow completes for the first
         # time.
-        if os.path.exists('token.json'):
-            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+        tokenPath = SCRIPT_DIRECTORY + 'token.json'
+        credsPath = SCRIPT_DIRECTORY + 'credentials.json'
+        if os.path.exists(tokenPath):
+            creds = Credentials.from_authorized_user_file(tokenPath, SCOPES)
         # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', SCOPES)
+                flow = InstalledAppFlow.from_client_secrets_file(credsPath, SCOPES)
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
-            with open('token.json', 'w') as token:
+            with open(tokenPath, 'w') as token:
                 token.write(creds.to_json())
         # create drive api client
         drive = build('drive', 'v3', credentials=creds)
