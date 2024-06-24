@@ -16,7 +16,7 @@ from googleapiclient.http import MediaFileUpload
 
 SCOPES = ['https://www.googleapis.com/auth/admin.directory.user', 'https://www.googleapis.com/auth/admin.directory.group', 'https://www.googleapis.com/auth/admin.directory.group.member', 'https://www.googleapis.com/auth/apps.licensing','https://www.googleapis.com/auth/drive']
 
-MAX_FILES_IN_FOLDER = 3  # define the maximum number of files in the google drive folder. the oldest files will be deleted to reduce down to this number
+MAX_FILES_IN_FOLDER = 14  # define the maximum number of files in the google drive folder. the oldest files will be deleted to reduce down to this number
 DIRECTORY_TO_BACKUP = '/usr/games/'  # define the directory that will be backed up
 FILENAME_PREFIX = 'osTicket directory backup-'
 GOOGLE_DRIVE_FOLDER_NAME = 'Test Script'
@@ -59,17 +59,26 @@ if __name__ == '__main__':
             if folder:
                 folderID = folder[0].get('id')  # get the folder id from the response so we can use it in the next query to find files in that folder specifically
                 # print(folderID)  # debug
+                # Upload the file to the parent folder
+                try:
+                    parentsArray = []
+                    parentsArray.append(folderID)
+                    file_metadata = {'name': filename, 'parents': parentsArray}  # define metadata about the file, like its name and the parent folder
+                    media = media = MediaFileUpload(filename=filename, mimetype='application/octet-stream', resumable=True)  # create the media body for the file, which is the file, file type, and wether it is resumable
+                    uploadFile = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()  # do the creation of the file using the bodies defined above
+                    print(f'INFO: Backup file "{filename}" was uploaded to Google Drive folder with ID {folderID}, resulting file ID is {uploadFile.get("id")}')
+                    print(f'INFO: Backup file "{filename}" was uploaded to Google Drive folder with ID {folderID}, resulting file ID is {uploadFile.get("id")}', file=log)
 
-                parentsArray = []
-                parentsArray.append(folderID)
-                file_metadata = {'name': filename, 'parents': parentsArray}  # define metadata about the file, like its name and the parent folder
-                media = media = MediaFileUpload(filename=filename, mimetype='application/octet-stream', resumable=True)  # create the media body for the file, which is the file, file type, and wether it is resumable
-                uploadFile = drive.files().create(body=file_metadata, media_body=media, fields='id').execute()  # do the creation of the file using the bodies defined above
-                print(f'INFO: Backup file "{filename}" was uploaded to Google Drive folder with ID {folderID}, resulting file ID is {uploadFile.get("id")}')
-                print(f'INFO: Backup file "{filename}" was uploaded to Google Drive folder with ID {folderID}, resulting file ID is {uploadFile.get("id")}', file=log)
+                except HttpError as er:   # catch Google API http errors, get the specific message and reason from them for better logging
+                    status = er.status_code
+                    details = er.error_details[0]  # error_details returns a list with a dict inside of it, just strip it to the first dict
+                    print(f'ERROR {status} from Google API while uploading Google Drive file {filename} to parent folder ID {folderID}: {details["message"]}. Reason: {details["reason"]}')
+                    print(f'ERROR {status} from Google API while uploading Google Drive file {filename} to parent folder ID {folderID}: {details["message"]}. Reason: {details["reason"]}', file=log)
+                except Exception as er:
+                    print(f'ERROR while uploading Google Drive file {filename} to parent folder ID {folderID}: {er}')
+                    print(f'ERROR while uploading Google Drive file {filename} to parent folder ID {folderID}: {er}', file=log)
 
-                # t.sleep(5)  # sleep to make sure we can see the new file, not sure if this is necessary
-
+                # count the number of files in the parent folder, attempt to cull down to max file limit
                 try:
                     nextPageFileToken = ''
                     while nextPageFileToken is not None:
