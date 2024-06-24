@@ -17,9 +17,9 @@ from googleapiclient.http import MediaFileUpload
 SCOPES = ['https://www.googleapis.com/auth/admin.directory.user', 'https://www.googleapis.com/auth/admin.directory.group', 'https://www.googleapis.com/auth/admin.directory.group.member', 'https://www.googleapis.com/auth/apps.licensing','https://www.googleapis.com/auth/drive']
 
 MAX_FILES_IN_FOLDER = 14  # define the maximum number of files in the google drive folder. the oldest files will be deleted to reduce down to this number
-DIRECTORY_TO_BACKUP = '/usr/games/'  # define the directory that will be backed up
+DIRECTORY_TO_BACKUP = '/var/www/osTicket/'  # define the directory that will be backed up
 FILENAME_PREFIX = 'osTicket directory backup-'
-GOOGLE_DRIVE_FOLDER_NAME = 'Test Script'
+GOOGLE_DRIVE_FOLDER_NAME = 'osTicket web folder backups'
 
 if __name__ == '__main__':
     with open('osTicketDirBackupLog.txt', 'w') as log:
@@ -116,15 +116,6 @@ if __name__ == '__main__':
                                 print(f'ERROR: Could not reduce down to maximum file count, still need to delete {filesToDelete} more')
                                 print(f'ERROR: Could not reduce down to maximum file count, still need to delete {filesToDelete} more', file=log)
 
-                    # delete the created tar file from the local machine so we dont end up out of space just from local backups
-                    try:
-                        os.remove(filename)
-                        print('DBUG: Local tar file was successfully deleted after upload')
-                        print('DBUG: Local tar file was successfully deleted after upload', file=log)
-                    except Exception as er:
-                        print(f'ERROR while deleting local tar file after upload: {er}')
-                        print(f'ERROR while deleting local tar file after upload: {er}', file=log)
-
                 except HttpError as er:   # catch Google API http errors, get the specific message and reason from them for better logging
                     status = er.status_code
                     details = er.error_details[0]  # error_details returns a list with a dict inside of it, just strip it to the first dict
@@ -133,3 +124,12 @@ if __name__ == '__main__':
                 except Exception as er:
                     print(f'ERROR: {er}')
                     print(f'ERROR: {er}', file=log)
+
+                # delete the created tar file from the local machine so we dont end up out of space just from local backups
+                try:
+                    os.remove(filename)
+                    print('DBUG: Local tar file was successfully deleted after upload')
+                    print('DBUG: Local tar file was successfully deleted after upload', file=log)
+                except Exception as er:
+                    print(f'ERROR while deleting local tar file after upload: {er}')
+                    print(f'ERROR while deleting local tar file after upload: {er}', file=log)
