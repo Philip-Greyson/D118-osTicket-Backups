@@ -14,7 +14,7 @@ from googleapiclient.http import MediaFileUpload
 
 SCOPES = ['https://www.googleapis.com/auth/admin.directory.user', 'https://www.googleapis.com/auth/admin.directory.group', 'https://www.googleapis.com/auth/admin.directory.group.member', 'https://www.googleapis.com/auth/apps.licensing','https://www.googleapis.com/auth/drive']
 
-MAX_FILES_IN_FOLDER = 14  # define the maximum number of files in the google drive folder. the oldest files will be deleted to reduce down to this number
+MAX_FILES_IN_FOLDER = 56  # define the maximum number of files in the google drive folder. the oldest files will be deleted to reduce down to this number
 FILENAME_PREFIX = 'osTicket-database-backup-'
 GOOGLE_DRIVE_FOLDER_NAME = 'Database Backups'
 SCRIPT_DIRECTORY = '/var/www/osTicket/scripts/D118-osTicket-Backups/'
