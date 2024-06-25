@@ -1,4 +1,13 @@
-"""Script to backup the sql database and upload to a Google Drive folder."""
+"""Script to backup the sql database and upload to a Google Drive folder.
+
+https://github.com/Philip-Greyson/D118-osTicket-Backups
+
+Takes a mysqldump using and uploads it to the specified Google Drive folder.
+Will remove the oldest non-starred files in the folder to reduce down to specified max file count.
+
+Needs the google-api-python-client, google-auth-httplib2 and the google-auth-oauthlib
+pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+"""
 
 import os  # needed for environement variable reading
 import time as t

@@ -1,4 +1,13 @@
-"""Script to backup the /var/www/osTicket directory."""
+"""Script to backup the /var/www/osTicket directory.
+
+https://github.com/Philip-Greyson/D118-osTicket-Backups
+
+Creates a tar.gz archive of a specified directory uploads it to the specified Google Drive folder.
+Will remove the oldest non-starred files in the folder to reduce down to specified max file count.
+
+Needs the google-api-python-client, google-auth-httplib2 and the google-auth-oauthlib
+pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+"""
 
 import glob  # needed to read list of files in directory
 import os  # needed for environement variable reading
