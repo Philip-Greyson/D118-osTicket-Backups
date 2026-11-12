@@ -23,13 +23,13 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
-SCOPES = ['https://www.googleapis.com/auth/admin.directory.user', 'https://www.googleapis.com/auth/admin.directory.group', 'https://www.googleapis.com/auth/admin.directory.group.member', 'https://www.googleapis.com/auth/apps.licensing','https://www.googleapis.com/auth/drive']
+SCOPES = ['https://www.googleapis.com/auth/drive']
 
 MAX_FILES_IN_FOLDER = 14  # define the maximum number of files in the google drive folder. the oldest files will be deleted to reduce down to this number
 DIRECTORY_TO_BACKUP = '/var/www/osTicket/'  # define the directory that will be backed up
 FILENAME_PREFIX = 'osTicket directory backup-'
 GOOGLE_DRIVE_FOLDER_NAME = 'osTicket web folder backups'
-SCRIPT_DIRECTORY = '/var/www/osTicket/scripts/D118-osTicket-Backups/'
+SCRIPT_DIRECTORY = '/root/D118-osTicket-Backups/'  # define the directory where this script is located, and where the log file will be created
 
 if __name__ == '__main__':
     with open(SCRIPT_DIRECTORY + 'osTicketDirBackupLog.txt', 'w') as log:
@@ -66,7 +66,7 @@ if __name__ == '__main__':
 
         print(f'INFO: Creating tar archive of folder {DIRECTORY_TO_BACKUP}, with filename "{filename}" this may take a while')
         print(f'INFO: Creating tar archive of folder {DIRECTORY_TO_BACKUP}, with filename "{filename}" this may take a while', file=log)
-        with tarfile.open(filename, "w:gz") as tar:  # create a tar with our filename
+        with tarfile.open(filenamePath, "w:gz") as tar:  # create a tar with our filename
             tar.add(DIRECTORY_TO_BACKUP, arcname=os.path.basename(DIRECTORY_TO_BACKUP))  # add the files from the directory to the tar
 
         print(f'INFO: Successfully created tar file, attempting to upload to Google drive folder named "{GOOGLE_DRIVE_FOLDER_NAME}"')
@@ -152,7 +152,7 @@ if __name__ == '__main__':
 
                 # delete the created tar file from the local machine so we dont end up out of space just from local backups
                 try:
-                    os.remove(filename)
+                    os.remove(filenamePath)
                     print('DBUG: Local tar file was successfully deleted after upload')
                     print('DBUG: Local tar file was successfully deleted after upload', file=log)
                 except Exception as er:
