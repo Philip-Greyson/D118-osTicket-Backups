@@ -28,11 +28,6 @@ FILENAME_PREFIX = 'osTicket-database-backup-'
 GOOGLE_DRIVE_FOLDER_NAME = 'Database Backups'
 SCRIPT_DIRECTORY = '/root/D118-osTicket-Backups/'  # define the directory where this script is located, and where the log file will be created
 
-DB_HOST = os.environ.get('OSTICKET_HOST')
-DB_USER = os.environ.get('OSTICKET_USERNAME')
-DB_PW = os.environ.get('OSTICKET_PASSWORD')
-DB_NAME = os.environ.get('OSTICKET_DB_NAME')
-
 if __name__ == '__main__':
     with open(SCRIPT_DIRECTORY + 'databaseBackupLog.txt', 'w') as log:
         startTime = datetime.now()

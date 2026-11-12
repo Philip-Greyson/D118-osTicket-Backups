@@ -17,14 +17,7 @@ There are full tutorials on getting these credentials from scratch available onl
 
 The script will attempt to upload the files to the user who has been authorized through the token process described above, and so they need to own the folders to match whatever is defined in `GOOGLE_DRIVE_FOLDER_NAME`
 
-The following Environment Variables must be set on the machine running the database backup script:
-
-- OSTICKET_HOST (likely localhost if you are running it on the osTicket server)
-- OSTICKET_USERNAME
-- OSTICKET_PASSWORD
-- OSTICKET_DB_NAME
-
-These are fairly self-explanatory and are simply the information about the database that is then used to create the MySQL dump. You can edit these to just directly include the information if you do not wish to use environment variables.
+The database backup script will need to be run as root or a user that MariaDB lets in through the local socket - as no username or password are used for security.
 
 ## Customization
 
