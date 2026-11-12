@@ -26,7 +26,7 @@ SCOPES = ['https://www.googleapis.com/auth/drive']
 MAX_FILES_IN_FOLDER = 56  # define the maximum number of files in the google drive folder. the oldest files will be deleted to reduce down to this number
 FILENAME_PREFIX = 'osTicket-database-backup-'
 GOOGLE_DRIVE_FOLDER_NAME = 'Database Backups'
-SCRIPT_DIRECTORY = '/root/D118-osTicket-Backups/'
+SCRIPT_DIRECTORY = '/root/D118-osTicket-Backups/'  # define the directory where this script is located, and where the log file will be created
 
 DB_HOST = os.environ.get('OSTICKET_HOST')
 DB_USER = os.environ.get('OSTICKET_USERNAME')
@@ -66,9 +66,7 @@ if __name__ == '__main__':
             timestamp = datetime.now().strftime('%Y-%m-%d-%H:%M:%S')  # get the current date and time
             filename = FILENAME_PREFIX + timestamp + '.sql'  # create a filename based on our prefix and timestamp
             filenamePath = SCRIPT_DIRECTORY + filename
-            dumpCMD = f'mysqldump -h {DB_HOST} -u {DB_USER} -p{DB_PW} {DB_NAME} > "{filenamePath}"'  # create the SQL dump command to output to our given filename. password needs to immediately follow the -p
-            print(f'DBUG: Creating SQL dump with the following command: {dumpCMD}')
-            print(f'DBUG: Creating SQL dump with the following command: {dumpCMD}', file=log)
+            dumpCMD = f'mysqldump --single-transaction --hex-blob --default-character-set=utf8mb4 osticket_db > "{filenamePath}"'
             os.system(dumpCMD)  # execute the dump command on the system
         except Exception as er:
             print(f'ERROR while creating SQL dump: {er}')
